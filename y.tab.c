@@ -73,14 +73,17 @@
     #include <stdlib.h> 
     #include <string.h>
     #include <ctype.h>
+    #include <stdbool.h>
 
     int my_wallet = 0;
     int my_experience = 0;
     int character_chosed = 0;
-    char my_cars[20][5] = { "Car1", "Car2"};
-    char my_house[20] = "Casa";
+    char my_cars[20][5];
+    char my_house[20];
     char my_business[20];
     int my_property = 0;
+    int current_job = -1;
+    bool casino_mode = false;
 
     void addMoneyAndExperienceByCharacter(char *character);
     void exit_game();
@@ -88,8 +91,17 @@
     void see_wallet();
     void see_my_property();
     void see_my_experience();
+    void print_houses();
+    void print_business();
+    void get_new_job();
+    void work_job();
+    void print_casino();
+    void print_dice();
+    void leave_casino();
+    void make_bet();
+    void go_to_party();
 
-#line 93 "y.tab.c"
+#line 105 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -199,10 +211,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 25 "yacc.y"
+#line 37 "yacc.y"
  int integer; char* string; 
 
-#line 206 "y.tab.c"
+#line 218 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -519,18 +531,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  11
+#define YYFINAL  24
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   34
+#define YYLAST   50
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  30
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  3
+#define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  16
+#define YYNRULES  36
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  19
+#define YYNSTATES  41
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   284
@@ -580,8 +592,10 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    56,    56,    57,    58,    59,    60,    61,    62,    63,
-      64,    65,    66,    67,    68,    69,    71
+       0,    68,    68,    69,    70,    71,    72,    73,    74,    75,
+      76,    77,    78,    79,    80,    81,    82,    83,    84,    85,
+      86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
+      96,    97,    98,    99,   101,   103,   105
 };
 #endif
 
@@ -595,7 +609,8 @@ static const char *const yytname[] =
   "list_car", "get_car", "list_house", "get_house", "list_casino", "dice",
   "bet", "exit_casino", "rob", "party", "list_business", "business",
   "check_business", "withdraw", "from_business", "quit", "sell_business",
-  "value", "name", "$accept", "line", "choose_person", YY_NULLPTR
+  "value", "name", "$accept", "line", "choose_person", "choose_job",
+  "choose_bet", YY_NULLPTR
 };
 #endif
 
@@ -624,8 +639,11 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       8,   -29,   -28,   -29,   -29,   -29,   -29,   -29,     0,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29
+      24,   -29,   -28,   -29,   -27,   -29,   -29,   -29,   -29,   -29,
+     -29,   -29,   -17,   -29,   -29,   -29,   -29,     0,   -29,   -29,
+     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
+     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
+     -29
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -633,20 +651,23 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     2,     0,     8,    10,    12,    14,     6,     0,     4,
-      16,     1,     3,     9,    11,    13,    15,     7,     5
+       0,     2,     0,     8,     0,    22,    10,    12,    14,    16,
+      24,    26,     0,    28,    32,    18,     6,     0,     4,    20,
+      30,    34,    35,    36,     1,     3,     9,    23,    11,    13,
+      15,    17,    25,    27,    29,    33,    19,     7,     5,    21,
+      31
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -29,   -29,    -6
+     -29,   -29,    -5,    -3,     2
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     8,     9
+      -1,    17,    18,    19,    20
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -654,40 +675,51 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      11,    10,    18,    12,     2,    13,     0,     0,    14,    15,
-      16,     1,     2,     3,     0,     0,     4,     5,     6,     0,
-       0,     0,     0,     0,     0,     0,    17,     0,     0,     0,
-       0,     0,     0,     0,     7
+      24,    21,    22,    25,     2,    26,     4,    27,    28,    29,
+      30,    23,    38,    31,    39,    32,    33,    12,    34,    40,
+      35,    36,     0,     0,     0,     0,    37,     1,     2,     3,
+       4,     5,     6,     7,     8,     0,     0,     9,     0,    10,
+      11,    12,    13,     0,    14,    15,     0,     0,     0,     0,
+      16
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,    29,     8,     3,     4,     5,    -1,    -1,     8,     9,
-      10,     3,     4,     5,    -1,    -1,     8,     9,    10,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    26,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    26
+       0,    29,    29,     3,     4,     5,     6,     7,     8,     9,
+      10,    28,    17,    13,    17,    15,    16,    17,    18,    17,
+      20,    21,    -1,    -1,    -1,    -1,    26,     3,     4,     5,
+       6,     7,     8,     9,    10,    -1,    -1,    13,    -1,    15,
+      16,    17,    18,    -1,    20,    21,    -1,    -1,    -1,    -1,
+      26
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     4,     5,     8,     9,    10,    26,    31,    32,
-      29,     0,     3,     5,     8,     9,    10,    26,    32
+       0,     3,     4,     5,     6,     7,     8,     9,    10,    13,
+      15,    16,    17,    18,    20,    21,    26,    31,    32,    33,
+      34,    29,    29,    28,     0,     3,     5,     7,     8,     9,
+      10,    13,    15,    16,    18,    20,    21,    26,    32,    33,
+      34
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    30,    31,    31,    31,    31,    31,    31,    31,    31,
-      31,    31,    31,    31,    31,    31,    32
+      31,    31,    31,    31,    31,    31,    31,    31,    31,    31,
+      31,    31,    31,    31,    31,    31,    31,    31,    31,    31,
+      31,    31,    31,    31,    32,    33,    34
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     2,     1,     2,     1,     2,     1,     2,
-       1,     2,     1,     2,     1,     2,     2
+       1,     2,     1,     2,     1,     2,     1,     2,     1,     2,
+       1,     2,     1,     2,     1,     2,     1,     2,     1,     2,
+       1,     2,     1,     2,     2,     2,     2
 };
 
 
@@ -1383,97 +1415,217 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 56 "yacc.y"
+#line 68 "yacc.y"
             { printf("Welcome to GTA Simulator! Please select a character between: CJ or Trevor or Ryder. Use 'I want to choose X' command.\n"); }
-#line 1389 "y.tab.c"
+#line 1421 "y.tab.c"
     break;
 
   case 3:
-#line 57 "yacc.y"
+#line 69 "yacc.y"
                  { }
-#line 1395 "y.tab.c"
+#line 1427 "y.tab.c"
     break;
 
   case 4:
-#line 58 "yacc.y"
+#line 70 "yacc.y"
                      { }
-#line 1401 "y.tab.c"
+#line 1433 "y.tab.c"
     break;
 
   case 5:
-#line 59 "yacc.y"
+#line 71 "yacc.y"
                           { }
-#line 1407 "y.tab.c"
+#line 1439 "y.tab.c"
     break;
 
   case 6:
-#line 60 "yacc.y"
+#line 72 "yacc.y"
             { exit_game(); }
-#line 1413 "y.tab.c"
+#line 1445 "y.tab.c"
     break;
 
   case 7:
-#line 61 "yacc.y"
+#line 73 "yacc.y"
                  { exit_game(); }
-#line 1419 "y.tab.c"
+#line 1451 "y.tab.c"
     break;
 
   case 8:
-#line 62 "yacc.y"
+#line 74 "yacc.y"
                 { print_jobs(); }
-#line 1425 "y.tab.c"
+#line 1457 "y.tab.c"
     break;
 
   case 9:
-#line 63 "yacc.y"
+#line 75 "yacc.y"
                      { print_jobs(); }
-#line 1431 "y.tab.c"
+#line 1463 "y.tab.c"
     break;
 
   case 10:
-#line 64 "yacc.y"
+#line 76 "yacc.y"
                        { see_wallet(); }
-#line 1437 "y.tab.c"
+#line 1469 "y.tab.c"
     break;
 
   case 11:
-#line 65 "yacc.y"
+#line 77 "yacc.y"
                             { see_wallet(); }
-#line 1443 "y.tab.c"
+#line 1475 "y.tab.c"
     break;
 
   case 12:
-#line 66 "yacc.y"
+#line 78 "yacc.y"
                   { see_my_experience(); }
-#line 1449 "y.tab.c"
+#line 1481 "y.tab.c"
     break;
 
   case 13:
-#line 67 "yacc.y"
+#line 79 "yacc.y"
                        { see_my_experience(); }
-#line 1455 "y.tab.c"
+#line 1487 "y.tab.c"
     break;
 
   case 14:
-#line 68 "yacc.y"
+#line 80 "yacc.y"
                 { see_my_property(); }
-#line 1461 "y.tab.c"
+#line 1493 "y.tab.c"
     break;
 
   case 15:
-#line 69 "yacc.y"
+#line 81 "yacc.y"
                      { see_my_property(); }
-#line 1467 "y.tab.c"
+#line 1499 "y.tab.c"
     break;
 
   case 16:
-#line 71 "yacc.y"
+#line 82 "yacc.y"
+                  { print_houses(); }
+#line 1505 "y.tab.c"
+    break;
+
+  case 17:
+#line 83 "yacc.y"
+                       { print_houses(); }
+#line 1511 "y.tab.c"
+    break;
+
+  case 18:
+#line 84 "yacc.y"
+                     { print_business(); }
+#line 1517 "y.tab.c"
+    break;
+
+  case 19:
+#line 85 "yacc.y"
+                          { print_business(); }
+#line 1523 "y.tab.c"
+    break;
+
+  case 20:
+#line 86 "yacc.y"
+                  { }
+#line 1529 "y.tab.c"
+    break;
+
+  case 21:
+#line 87 "yacc.y"
+                       { }
+#line 1535 "y.tab.c"
+    break;
+
+  case 22:
+#line 88 "yacc.y"
+            { work_job(); }
+#line 1541 "y.tab.c"
+    break;
+
+  case 23:
+#line 89 "yacc.y"
+                 { work_job(); }
+#line 1547 "y.tab.c"
+    break;
+
+  case 24:
+#line 90 "yacc.y"
+                   { print_casino(); }
+#line 1553 "y.tab.c"
+    break;
+
+  case 25:
+#line 91 "yacc.y"
+                        { print_casino(); }
+#line 1559 "y.tab.c"
+    break;
+
+  case 26:
+#line 92 "yacc.y"
+            { print_dice(); }
+#line 1565 "y.tab.c"
+    break;
+
+  case 27:
+#line 93 "yacc.y"
+                 { print_dice(); }
+#line 1571 "y.tab.c"
+    break;
+
+  case 28:
+#line 94 "yacc.y"
+                   { leave_casino(); }
+#line 1577 "y.tab.c"
+    break;
+
+  case 29:
+#line 95 "yacc.y"
+                        { leave_casino(); }
+#line 1583 "y.tab.c"
+    break;
+
+  case 30:
+#line 96 "yacc.y"
+                  { }
+#line 1589 "y.tab.c"
+    break;
+
+  case 31:
+#line 97 "yacc.y"
+                       { }
+#line 1595 "y.tab.c"
+    break;
+
+  case 32:
+#line 98 "yacc.y"
+             { go_to_party(); }
+#line 1601 "y.tab.c"
+    break;
+
+  case 33:
+#line 99 "yacc.y"
+                  { go_to_party(); }
+#line 1607 "y.tab.c"
+    break;
+
+  case 34:
+#line 101 "yacc.y"
                                       { addMoneyAndExperienceByCharacter((yyvsp[0].string)); }
-#line 1473 "y.tab.c"
+#line 1613 "y.tab.c"
+    break;
+
+  case 35:
+#line 103 "yacc.y"
+                          { get_new_job((yyvsp[0].string)); }
+#line 1619 "y.tab.c"
+    break;
+
+  case 36:
+#line 105 "yacc.y"
+                      { make_bet((yyvsp[0].integer)); }
+#line 1625 "y.tab.c"
     break;
 
 
-#line 1477 "y.tab.c"
+#line 1629 "y.tab.c"
 
       default: break;
     }
@@ -1705,7 +1857,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 73 "yacc.y"
+#line 107 "yacc.y"
 
 
 void addMoneyAndExperienceByCharacter(char *character) {
@@ -1784,6 +1936,188 @@ void see_my_property() {
 
 void see_my_experience() {
     printf("Your experience: %d XP\n", my_experience);
+}
+
+void print_houses() {
+    if (character_chosed == 1) {
+        printf("Welcome to our city! To buy a house use “Buy house X” command. The available houses are:\n");
+        printf("Small House – 40.000$.\n");
+        printf("Medium House – 50.000$.\n");
+        printf("Big House – 60.000$.\n");
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+void print_business() {
+    if (character_chosed == 1) {
+        printf("Welcome in our business world! To buy a business use “Buy business X” command. The available business are:\n");
+        printf("Restaurant – 40.000$\n");
+        printf("Gas Station – 50.000$\n");
+        printf("Car Service – 60.000$\n");
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+void get_new_job(char *jobName) {
+    if (character_chosed == 1) {
+        if (strcmp(jobName, "Trucker") == 0) {
+            if (my_experience >= 0) {
+                current_job = 0;
+                printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
+            }
+            else {
+                printf("You don't have enough experience to get this job!\n");
+            }
+        }
+        else if (strcmp(jobName, "Farmer") == 0) {
+            if (my_experience >= 30) {
+                current_job = 1;
+                printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
+            }
+            else {
+                printf("You don't have enough experience to get this job!\n");
+            }
+        }
+        else if (strcmp(jobName, "Lumberjack") == 0) {
+            if (my_experience >= 50) {
+                current_job = 2;
+                printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
+            }
+            else {
+                printf("You don't have enough experience to get this job!\n");
+            }
+        }
+        else if (strcmp(jobName, "Miner") == 0) {
+            if (my_experience >= 70) {
+                current_job = 3;
+                printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
+            }
+            else {
+                printf("You don't have enough experience to get this job!\n");
+            }
+        }
+        else if (strcmp(jobName, "Drugs Dealer") == 0) {
+            if (my_experience >= 100) {
+                current_job = 4;
+                printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
+            }
+            else {
+                printf("You don't have enough experience to get this job!\n");
+            }
+        }
+        else {
+            printf("This job doesn't exist!\n");
+        }
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+void work_job() {
+    if (character_chosed == 1) {
+        if (current_job == 0) {
+            my_experience += 3;
+            my_wallet += 1200;
+            printf("Trucker job: You got 1.200$ and 3 XP.\n");
+        }
+        else if (current_job == 1) {
+            my_experience += 4;
+            my_wallet += 1500;
+            printf("Farmer job: You got 1.500$ and 4 XP.\n");
+        }
+        else if (current_job == 2) {
+            my_experience += 5;
+            my_wallet += 1800;
+            printf("Lumberjack job: You got 1.800$ and 5 XP.\n");
+        }
+        else if (current_job == 3) {
+            my_experience += 7;
+            my_wallet += 2000;
+            printf("Miner job: You got 2.000$ and 7 XP.\n");
+        }
+        else if (current_job == 4) {
+            my_experience += 10;
+            my_wallet += 3000;
+            printf("Drugs Dealer job: You got 3.000$ and 10 XP.\n");
+        }
+        else {
+            printf("You don't have a job! Please use 'Get job' command!\n");
+        }
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+void print_casino() {
+    if (character_chosed == 1) {
+        printf("Welcome to our casino! To start playing use 'Dice' command. To leave the casino use 'Exit casino' command.\n");
+        casino_mode = true;
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+void print_dice() {
+    if (casino_mode) {
+        printf("Hi! Please type the amount of money you want to bet with 'I want to bet X money' command.\n");
+    }
+    else {
+        printf("You have to go to casino first! Please use 'Go to casino' command.\n");
+    }
+}
+
+void make_bet(int amount) {
+    if (casino_mode) {
+        if (my_wallet >= amount) {
+            int my_roll = rand() % 5 + 1;
+            int PC_roll = rand() % 5 + 1;
+            if (my_roll == PC_roll) {
+                printf("You roll %d and PC rolls %d. Tie!\n", my_roll, PC_roll);
+            }
+            else if (my_roll > PC_roll) {
+                printf("You roll %d and PC rolls %d. You win!\n", my_roll, PC_roll);
+                my_wallet += amount;
+            }
+            else if (my_roll < PC_roll) {
+                printf("You roll %d and PC rolls %d. You lose!\n", my_roll, PC_roll);
+                my_wallet -= amount;
+            }
+        }
+        else {
+            printf("You don't have enough money to place this bet!\n");
+        }
+    }
+    else {
+        printf("You have to go to casino first! Please use 'Go to casino' command.\n");
+    }
+}
+
+void leave_casino() {
+    printf("Bye! We hope to see you again soon!\n");
+    casino_mode = false;
+}
+
+void go_to_party() {
+    if (character_chosed == 1) {
+        int money_spent = rand() % 10000;
+        if (my_wallet - money_spent < 0) {
+            while (my_wallet - money_spent < 0) {
+                money_spent = rand() % 10000;
+            }
+        }
+        my_wallet -= money_spent;
+        printf("You got drunk and did a lot of things last night! You losed %d$!\n", money_spent);
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }   
 }
 
 int main(void) {
