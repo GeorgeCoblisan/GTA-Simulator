@@ -9,12 +9,26 @@
     int my_wallet = 0;
     int my_experience = 0;
     int character_chosed = 0;
-    char my_cars[20][5];
-    char my_house[20];
-    char my_business[20];
     int my_property = 0;
     int current_job = -1;
     bool casino_mode = false;
+
+    typedef struct Item{
+        char item_name[20];
+        int price;
+    };
+
+    struct Item my_cars[10];
+    struct Item my_house;
+    struct Item my_business;
+
+    struct Item cars_list[] = {
+        { .item_name = "ROLLS ROYCE", .price = 60000 },
+        { .item_name = "ASTON MARTIN", .price = 30000 },
+        { .item_name = "BMW M8", .price = 20000 },
+    };
+
+    int iter_cars = 0, iter_house = 0, iter_business = 0;
 
     void addMoneyAndExperienceByCharacter(char *character);
     void exit_game();
@@ -31,78 +45,61 @@
     void leave_casino();
     void make_bet();
     void go_to_party();
+    void print_cars();
+    int buy_car(char* car_name);
 %}
 
 %start line
 %union { int integer; char* string; }
-%token play
-%token choose_character
-%token list_job
-%token get_job
-%token work
-%token account_balance
-%token experience
-%token property
-%token list_car
-%token get_car
-%token list_house
-%token get_house
-%token list_casino
-%token dice
-%token bet
-%token exit_casino
-%token rob
-%token party
-%token list_business
-%token business
-%token check_business
-%token withdraw
-%token from_business
-%token quit
-%token sell_business
+%token play choose_character get job work see account_balance experience 
+%token property buy car house go_to casino dice bet leave rob party business check withdraw from quit sell invalid
 %token <integer> value
 %token <string> name
+
 
 %%
 
 line : play { printf("Welcome to GTA Simulator! Please select a character between: CJ or Trevor or Ryder. Use 'I want to choose X' command.\n"); }
      | line play { }
-     | choose_person { }
      | line choose_person { }
-     | quit { exit_game(); }
-     | line quit { exit_game(); }
-     | list_job { print_jobs(); }
-     | line list_job { print_jobs(); }
-     | account_balance { see_wallet(); }
-     | line account_balance { see_wallet(); }
-     | experience { see_my_experience(); }
-     | line experience { see_my_experience(); }
-     | property { see_my_property(); }
-     | line property { see_my_property(); }
-     | list_house { print_houses(); }
-     | line list_house { print_houses(); }
-     | list_business { print_business(); }
-     | line list_business { print_business(); }
-     | choose_job { }
-     | line choose_job { }
-     | work { work_job(); }
-     | line work { work_job(); }
-     | list_casino { print_casino(); }
-     | line list_casino { print_casino(); }
-     | dice { print_dice(); }
-     | line dice { print_dice(); }
-     | exit_casino { leave_casino(); }
-     | line exit_casino { leave_casino(); }
-     | choose_bet { }
-     | line choose_bet { }
-     | party { go_to_party(); }
+     | line leave { exit_game(); }
+     | line job_topic { }
+     | line car_topic { }
+     | line house_topic { }
+     | line business_topic { }
+     | line casino_topic { }
+     | line check_topic{ }
      | line party { go_to_party(); }
+     | line invalid { printf("NO"); }
+     | /* NULL */;
+
+job_topic   : get job { print_jobs(); }
+            | get job name { get_new_job($3); }
+            | work { work_job(); }
+
+car_topic   : buy car { print_cars(); }
+            | buy car name { buy_car($3); }
+
+house_topic : buy house {}
+            | buy house name {}
+
+business_topic: buy business {}
+              | buy business name {}
+              | check business {}
+              | withdraw from business {}
+              | sell business {}
+
+casino_topic  : go_to casino { print_casino(); }
+              | dice { print_dice(); }
+              | bet value { make_bet($2); }
+              | leave casino { leave_casino(); }
+
+check_topic   : see account_balance { see_wallet(); }
+              | see experience { see_my_experience(); }
+              | see property { see_my_property(); }
 
 choose_person : choose_character name { addMoneyAndExperienceByCharacter($2); }
 
-choose_job : get_job name { get_new_job($2); }
-
-choose_bet: bet value { make_bet($2); }
 
 %%
 
@@ -135,6 +132,7 @@ void addMoneyAndExperienceByCharacter(char *character) {
     }
 }
 
+
 void exit_game() {
     printf("Have a nice day! Hope to see you again very soon!\n");
     exit(1);
@@ -162,21 +160,21 @@ void see_my_property() {
     if (my_property == 0) {
         printf("You don’t have any property!\n");
     }
-    if (strlen(my_cars[0]) != 0) {
+    if (iter_cars != 0) {
         my_property = 1;
         printf("Your cars: ");
-        for (int i=0; i<5; i++) {
-            printf("%s ", my_cars[i]);
+        for (int i=0; i<3; i++) {
+            printf("%s ", my_cars[i].item_name);
         }
         printf("\n");
     }
-    if (strlen(my_house) != 0) {
+    if (iter_house != 0) {
         my_property = 1;
-        printf("Your house: %s\n", my_house);
+        printf("Your house: %s\n", my_house.item_name);
     }
-    if (strlen(my_business) != 0) {
+    if (iter_business != 0) {
         my_property = 1;
-        printf("Your business: %s\n", my_business);
+        printf("Your business: %s\n", my_business.item_name);
     }
 }
 
@@ -210,7 +208,7 @@ void print_business() {
 
 void get_new_job(char *jobName) {
     if (character_chosed == 1) {
-        if (strcmp(jobName, "Trucker") == 0) {
+        if (strcmp(jobName, "TRUCKER") == 0) {
             if (my_experience >= 0) {
                 current_job = 0;
                 printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
@@ -219,7 +217,7 @@ void get_new_job(char *jobName) {
                 printf("You don't have enough experience to get this job!\n");
             }
         }
-        else if (strcmp(jobName, "Farmer") == 0) {
+        else if (strcmp(jobName, "FARMER") == 0) {
             if (my_experience >= 30) {
                 current_job = 1;
                 printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
@@ -237,7 +235,7 @@ void get_new_job(char *jobName) {
                 printf("You don't have enough experience to get this job!\n");
             }
         }
-        else if (strcmp(jobName, "Miner") == 0) {
+        else if (strcmp(jobName, "MINER") == 0) {
             if (my_experience >= 70) {
                 current_job = 3;
                 printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
@@ -366,7 +364,48 @@ void go_to_party() {
     }   
 }
 
+void print_cars(){
+    if (character_chosed == 1) {
+        printf("Welcome to the car shop! To buy a car use “Buy car X” command. The available cars are:\n");
+        for(int i=0; i<3; i++){
+            printf("%s %d$\n", cars_list[i].item_name, cars_list[i].price);
+        }
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+int buy_car(char* car_name){
+    if(character_chosed == 0){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    int ok = 1;
+    for(int i=0; i<3; i++){
+            if(strcmp(cars_list[i].item_name, car_name)==0){
+                if(my_wallet >= cars_list[i].price){
+                    my_wallet -= cars_list[i].price;
+                    printf("You bought the %s car for %d\n", cars_list[i].item_name, cars_list[i].price);
+                    my_cars[iter_cars++] = cars_list[i];
+                }else{
+                    printf("You do not have %d $! You only have %d $\n", cars_list[i].price, my_wallet);
+                }
+            }
+            ok = 0;
+        }
+
+    if(!ok){
+         printf("Car does not exist");
+         return 0;
+    }
+
+    return 1;
+}
+
 int main(void) {
+
+
     return yyparse();
 }
 

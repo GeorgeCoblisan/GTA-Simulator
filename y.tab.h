@@ -51,70 +51,72 @@ extern int yydebug;
   {
     play = 258,
     choose_character = 259,
-    list_job = 260,
-    get_job = 261,
+    get = 260,
+    job = 261,
     work = 262,
-    account_balance = 263,
-    experience = 264,
-    property = 265,
-    list_car = 266,
-    get_car = 267,
-    list_house = 268,
-    get_house = 269,
-    list_casino = 270,
-    dice = 271,
-    bet = 272,
-    exit_casino = 273,
-    rob = 274,
-    party = 275,
-    list_business = 276,
+    see = 263,
+    account_balance = 264,
+    experience = 265,
+    property = 266,
+    buy = 267,
+    car = 268,
+    house = 269,
+    go_to = 270,
+    casino = 271,
+    dice = 272,
+    bet = 273,
+    leave = 274,
+    rob = 275,
+    party = 276,
     business = 277,
-    check_business = 278,
+    check = 278,
     withdraw = 279,
-    from_business = 280,
+    from = 280,
     quit = 281,
-    sell_business = 282,
-    value = 283,
-    name = 284
+    sell = 282,
+    invalid = 283,
+    value = 284,
+    name = 285
   };
 #endif
 /* Tokens.  */
 #define play 258
 #define choose_character 259
-#define list_job 260
-#define get_job 261
+#define get 260
+#define job 261
 #define work 262
-#define account_balance 263
-#define experience 264
-#define property 265
-#define list_car 266
-#define get_car 267
-#define list_house 268
-#define get_house 269
-#define list_casino 270
-#define dice 271
-#define bet 272
-#define exit_casino 273
-#define rob 274
-#define party 275
-#define list_business 276
+#define see 263
+#define account_balance 264
+#define experience 265
+#define property 266
+#define buy 267
+#define car 268
+#define house 269
+#define go_to 270
+#define casino 271
+#define dice 272
+#define bet 273
+#define leave 274
+#define rob 275
+#define party 276
 #define business 277
-#define check_business 278
+#define check 278
 #define withdraw 279
-#define from_business 280
+#define from 280
 #define quit 281
-#define sell_business 282
-#define value 283
-#define name 284
+#define sell 282
+#define invalid 283
+#define value 284
+#define name 285
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 37 "yacc.y"
+#line 53 "yacc.y"
  int integer; char* string; 
 
-#line 118 "y.tab.h"
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
