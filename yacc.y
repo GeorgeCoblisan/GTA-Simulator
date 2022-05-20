@@ -5,6 +5,7 @@
     #include <string.h>
     #include <ctype.h>
     #include <stdbool.h>
+    #include <time.h>
 
     int my_wallet = 0;
     int my_experience = 0;
@@ -12,20 +13,47 @@
     int my_property = 0;
     int current_job = -1;
     bool casino_mode = false;
+    int nr_good = 0;
 
     typedef struct Item{
         char item_name[20];
         int price;
     };
 
+    typedef struct Business{
+        char item_name[20];
+        int price;
+        int turnover;
+    };
+
     struct Item my_cars[10];
     struct Item my_house;
-    struct Item my_business;
+    struct Business my_business;
 
     struct Item cars_list[] = {
         { .item_name = "ROLLS ROYCE", .price = 60000 },
         { .item_name = "ASTON MARTIN", .price = 30000 },
-        { .item_name = "BMW M8", .price = 20000 },
+        { .item_name = "BMW M8", .price = 15000 },
+    };
+
+    struct Item houses_list[] = {
+        { .item_name = "BEACH VILLA", .price = 250000 },
+        { .item_name = "BIG APARTMENT", .price = 120000 },
+        { .item_name = "STUDIO", .price = 60000 },
+    };
+
+    struct Business businesses_list[] = {
+        { .item_name = "COPIER", .price = 7000, .turnover = 2500 },
+        { .item_name = "TECH GIANT", .price = 200000, .turnover = 60000 },
+        { .item_name = "ACCOUNTING FIRM", .price = 60000, .turnover = 15000 },
+    };
+
+    struct Item jobs_list[] = {
+        { .item_name = "TRUCKER", .price = 0 },
+        { .item_name = "FARMER", .price = 30 },
+        { .item_name = "LUMBERJACK", .price = 50 },
+        { .item_name = "MINER", .price = 70 },
+        { .item_name = "DRUG DEALER", .price = 100 },
     };
 
     int iter_cars = 0, iter_house = 0, iter_business = 0;
@@ -47,11 +75,23 @@
     void go_to_party();
     void print_cars();
     int buy_car(char* car_name);
+    void print_houses();
+    void print_businesses();
+    int buy_house(char* house_name);
+    int buy_business(char* business_name);
+    int check_business();
+    int sell_business();
+    int withdraw_business(int sum);
+    int robbing();
+    int rand50();
+    bool rand25();
+    bool rand50p();
+    bool rand75();
 %}
 
 %start line
 %union { int integer; char* string; }
-%token play choose_character get job work see account_balance experience 
+%token play choose_character get job work see account_balance experience cars jobs businesses houses
 %token property buy car house go_to casino dice bet leave rob party business check withdraw from quit sell invalid
 %token <integer> value
 %token <string> name
@@ -59,8 +99,7 @@
 
 %%
 
-line : play { printf("Welcome to GTA Simulator! Please select a character between: CJ or Trevor or Ryder. Use 'I want to choose X' command.\n"); }
-     | line play { }
+line : play { printf("Welcome to GTA Simulator! Please select a character between: CJ or TREVOR or RYDER. Use 'I want to choose X' command.\n"); }
      | line choose_person { }
      | line leave { exit_game(); }
      | line job_topic { }
@@ -70,24 +109,26 @@ line : play { printf("Welcome to GTA Simulator! Please select a character betwee
      | line casino_topic { }
      | line check_topic{ }
      | line party { go_to_party(); }
-     | line invalid { printf("NO"); }
+     | line invalid { }
+     | line rob { robbing(); }
+     | quit { printf("Thank you for playing!\n"); exit(0); }
      | /* NULL */;
 
-job_topic   : get job { print_jobs(); }
+job_topic   : get jobs { print_jobs(); }
             | get job name { get_new_job($3); }
             | work { work_job(); }
 
-car_topic   : buy car { print_cars(); }
+car_topic   : buy cars { print_cars(); }
             | buy car name { buy_car($3); }
 
-house_topic : buy house {}
-            | buy house name {}
+house_topic : buy houses { print_houses(); }
+            | buy house name { buy_house($3); }
 
-business_topic: buy business {}
-              | buy business name {}
-              | check business {}
-              | withdraw from business {}
-              | sell business {}
+business_topic: buy businesses { print_businesses(); }
+              | buy business name { buy_business($3); }
+              | check business { check_business(); }
+              | withdraw from business value { withdraw_business($4); }
+              | sell business { sell_business(); }
 
 casino_topic  : go_to casino { print_casino(); }
               | dice { print_dice(); }
@@ -107,14 +148,14 @@ void addMoneyAndExperienceByCharacter(char *character) {
     int exist = 1;
     if (character_chosed == 0) {
         if (strcmp(character, "CJ") == 0) {
-            my_wallet += 12000;
+            my_wallet += 1000000;
             my_experience += 20;
         }
-        else if (strcmp(character, "Ryder") == 0) {
+        else if (strcmp(character, "RYDER") == 0) {
             my_wallet += 10000;
             my_experience += 15;
         }
-        else if (strcmp(character, "Trevor") == 0) {
+        else if (strcmp(character, "TREVOR") == 0) {
             my_wallet += 11000;
             my_experience += 18;
         }
@@ -141,11 +182,11 @@ void exit_game() {
 void print_jobs() {
     if (character_chosed == 1) {
         printf("Welcome to our jobs! Choose the job that suits you based on your experience. Use “Get job X” command. The available jobs are:\n");
-        printf("Trucker – 0 XP.\n");
-        printf("Farmer – 30 XP.\n");
-        printf("Lumberjack – 50 XP.\n");
-        printf("Miner – 70 XP.\n");
-        printf("Drugs Dealer – 100 XP.\n");
+        printf("TRUCKER – 0 XP.\n");
+        printf("FARMER – 30 XP.\n");
+        printf("LUMBERJACK – 50 XP.\n");
+        printf("MINER – 70 XP.\n");
+        printf("DRUG DEALER – 100 XP.\n");
     }
     else {
         printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
@@ -157,9 +198,7 @@ void see_wallet() {
 }
 
 void see_my_property() {
-    if (my_property == 0) {
-        printf("You don’t have any property!\n");
-    }
+   
     if (iter_cars != 0) {
         my_property = 1;
         printf("Your cars: ");
@@ -174,7 +213,10 @@ void see_my_property() {
     }
     if (iter_business != 0) {
         my_property = 1;
-        printf("Your business: %s\n", my_business.item_name);
+        printf("Your business: %s, value is %d $\n", my_business.item_name, my_business.price);
+    }
+    if (my_property == 0) {
+        printf("You don’t have any property!\n");
     }
 }
 
@@ -182,29 +224,6 @@ void see_my_experience() {
     printf("Your experience: %d XP\n", my_experience);
 }
 
-void print_houses() {
-    if (character_chosed == 1) {
-        printf("Welcome to our city! To buy a house use “Buy house X” command. The available houses are:\n");
-        printf("Small House – 40.000$.\n");
-        printf("Medium House – 50.000$.\n");
-        printf("Big House – 60.000$.\n");
-    }
-    else {
-        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
-    }
-}
-
-void print_business() {
-    if (character_chosed == 1) {
-        printf("Welcome in our business world! To buy a business use “Buy business X” command. The available business are:\n");
-        printf("Restaurant – 40.000$\n");
-        printf("Gas Station – 50.000$\n");
-        printf("Car Service – 60.000$\n");
-    }
-    else {
-        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
-    }
-}
 
 void get_new_job(char *jobName) {
     if (character_chosed == 1) {
@@ -226,7 +245,7 @@ void get_new_job(char *jobName) {
                 printf("You don't have enough experience to get this job!\n");
             }
         }
-        else if (strcmp(jobName, "Lumberjack") == 0) {
+        else if (strcmp(jobName, "LUMBERJACK") == 0) {
             if (my_experience >= 50) {
                 current_job = 2;
                 printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
@@ -244,7 +263,7 @@ void get_new_job(char *jobName) {
                 printf("You don't have enough experience to get this job!\n");
             }
         }
-        else if (strcmp(jobName, "Drugs Dealer") == 0) {
+        else if (strcmp(jobName, "DRUG DEALER") == 0) {
             if (my_experience >= 100) {
                 current_job = 4;
                 printf("Congratulations! You become a %s. To start working use 'Work' command.\n", jobName);
@@ -292,6 +311,14 @@ void work_job() {
         else {
             printf("You don't have a job! Please use 'Get job' command!\n");
         }
+
+        for(int i=0; i<5; i++){
+            if(current_job != i){
+                if(jobs_list[i].price <= my_experience && jobs_list[i].price >= jobs_list[current_job].price){
+                   printf("New job available: %s. Change it with Get job %s\n", jobs_list[i].item_name, jobs_list[i].item_name);
+                }
+            }
+        }
     }
     else {
         printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
@@ -318,6 +345,7 @@ void print_dice() {
 }
 
 void make_bet(int amount) {
+    srand(time(0));
     if (casino_mode) {
         if (my_wallet >= amount) {
             int my_roll = rand() % 5 + 1;
@@ -349,6 +377,7 @@ void leave_casino() {
 }
 
 void go_to_party() {
+    srand(time(0));
     if (character_chosed == 1) {
         int money_spent = rand() % 10000;
         if (my_wallet - money_spent < 0) {
@@ -381,9 +410,10 @@ int buy_car(char* car_name){
         printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
         return 0;
     }
-    int ok = 1;
+    int ok = 0;
     for(int i=0; i<3; i++){
             if(strcmp(cars_list[i].item_name, car_name)==0){
+                ok = 1;
                 if(my_wallet >= cars_list[i].price){
                     my_wallet -= cars_list[i].price;
                     printf("You bought the %s car for %d\n", cars_list[i].item_name, cars_list[i].price);
@@ -392,7 +422,7 @@ int buy_car(char* car_name){
                     printf("You do not have %d $! You only have %d $\n", cars_list[i].price, my_wallet);
                 }
             }
-            ok = 0;
+            
         }
 
     if(!ok){
@@ -402,6 +432,283 @@ int buy_car(char* car_name){
 
     return 1;
 }
+
+void print_houses(){
+    if (character_chosed == 1) {
+        printf("Welcome to the car shop! To buy a car use “Buy car X” command. The available cars are:\n");
+        for(int i=0; i<3; i++){
+            printf("%s %d$\n", houses_list[i].item_name, houses_list[i].price);
+        }
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+int buy_house(char* house_name){
+    if(character_chosed == 0){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    if(iter_house == 1){
+        printf("You already have a house!\n");
+        return 0;
+    }
+    int ok = 0;
+    for(int i=0; i<3; i++){
+            if(strcmp(houses_list[i].item_name, house_name)==0){
+                ok = 1;
+                if(my_wallet >= houses_list[i].price){
+                    my_wallet -= houses_list[i].price;
+                    printf("You bought the %s for %d\n", houses_list[i].item_name, houses_list[i].price);
+                    my_house = houses_list[i];
+                    iter_house = 1;
+                }else{
+                    printf("You do not have %d $! You only have %d $\n", houses_list[i].price, my_wallet);
+                }
+            }
+            
+        }
+
+    if(!ok){
+         printf("House does not exist");
+         return 0;
+    }
+
+    return 1;
+}
+
+void print_businesses(){
+    if (character_chosed == 1) {
+        printf("Welcome to the business market! To buy a business use “Buy business X” command. The available businesses are:\n");
+        for(int i=0; i<3; i++){
+            printf("%s %d$\n", businesses_list[i].item_name, businesses_list[i].price);
+        }
+    }
+    else {
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+    }
+}
+
+int buy_business(char* business_name){
+    if(character_chosed == 0){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    if(iter_business == 1){
+        printf("You already have a business! Sell it in order to buy another!\n");
+        return 0;
+    }
+    int ok = 0;
+    for(int i=0; i<3; i++){
+            if(strcmp(businesses_list[i].item_name, business_name)==0){
+                ok = 1;
+                if(my_wallet >= businesses_list[i].price){
+                    my_wallet -= businesses_list[i].price;
+                    printf("You bought the %s for %d\n", businesses_list[i].item_name, businesses_list[i].price);
+                    my_business = businesses_list[i];
+                    iter_business = 1;
+                }else{
+                    printf("You do not have %d $! You only have %d $\n", businesses_list[i].price, my_wallet);
+                }
+            }
+            
+        }
+
+    if(!ok){
+         printf("Business does not exist"); 
+         return 0;
+    }
+
+    return 1;
+}
+
+
+int check_business(){
+    srand(time(0));
+    if(!choose_character){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    if(!iter_business){
+        printf("You to buy a business first! Please use 'Buy business X' command.\n");
+        return 0;
+    }
+    if(my_business.price == -1){
+        printf("You do not have a business. You either sold it or lost it\n");
+        return 0;
+    }
+
+    int money = rand() % my_business.turnover;
+    int win_lose = 0;
+    if(nr_good != 0){
+        win_lose = rand() % nr_good * 3;
+    }
+     
+    if(!nr_good){
+        printf("Your business is thriving! Value increased by %d $\n", money);
+        my_business.price += money;
+        nr_good++;
+    }
+    else if(win_lose > nr_good){
+        if(money > my_business.price){
+            printf("Your business is in debt, you lose your business");
+            my_business.price = -1;
+            iter_business = 0;
+        }
+        else{
+            printf("Your business is losing money! Value decreased by %d $\n", money);
+            my_business.price -= money;
+        }
+       
+    }else{
+        printf("Your business is thriving! Value increased by %d $\n", money);
+        my_business.price += money;
+        nr_good++;
+    }
+    return 1;
+}
+
+int sell_business(){
+     if(!choose_character){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    if(!iter_business){
+        printf("You to buy a business first! Please use 'Buy business X' command.\n");
+        return 0;
+    }
+    if(my_business.price == -1){
+        printf("You do not have a business. You either sold it or lost it\n");
+        return 0;
+    }
+     
+     printf("Your business is sold, you inherit %d $\n", my_business.price);
+     my_wallet += my_business.price;
+     my_business.price = -1;
+     iter_business = 0;
+     return 1;
+}
+
+int withdraw_business(int sum){
+    if(!choose_character){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    if(!iter_business){
+        printf("You to buy a business first! Please use 'Buy business X' command.\n");
+        return 0;
+    }
+    if(my_business.price == -1){
+        printf("You do not have a business. You either sold it or lost it\n");
+        return 0;
+    }
+    if(sum >= my_business.price){
+        printf("Too little money in your business!\n");
+        return 0;
+    }
+
+     my_wallet += sum; 
+     my_business.price -= sum;
+     printf("You withdrew %d $. Your business is now worth %d $.\n", sum, my_business.price);
+
+     return 1;
+}
+int rand50(){
+    return rand() & 1; 
+}
+
+bool rand75(){
+    return rand50() | rand50();
+}
+
+bool rand50p(){
+    return rand50() & rand50();
+}
+
+bool rand25(){
+    return rand50() ^ rand50();
+}
+
+
+
+int robbing(){
+    if(!my_experience){
+        printf("You do not have any XP left. Work to gain and continue to rob!\n");
+        return 0;
+    }
+
+    if(!choose_character){
+        printf("You have to choose a character first! Please use 'I want to choose X' command.\n");
+        return 0;
+    }
+    srand(time(NULL));
+    int money_won = rand() % 20000;
+    int xp_won = rand() % 20;
+    int xp_lost = rand() % 30;
+
+    if(my_experience < 30){
+        if(rand25()){
+            printf("You succesfully robbed the place! You get %d $ and %d XP.\n", money_won, xp_won);
+            my_experience += xp_won;
+            my_wallet += money_won;
+            if(rand25()){
+                struct Item stolen_car = { .item_name = "Robbed car", .price= 100000};
+                my_cars[iter_cars++] = stolen_car;
+                printf("You got lucky! While robbing you found a great car! It's been added to your property!\n");
+            }
+        }else{
+            if(xp_lost > my_experience){
+                printf("You were busted! You lose all your XP.\n");
+                my_experience = 0;
+                
+            }else{
+                printf("You were busted! You lose %d XP.\n", xp_lost);
+                my_experience -= xp_lost;
+            }
+        }
+    }else if(my_experience < 50){
+        if(rand50p()){
+            printf("You succesfully robbed the place! You get %d $ and %d XP.\n", money_won, xp_won);
+            my_experience += xp_won;
+            my_wallet += money_won;
+            if(rand25()){
+                struct Item stolen_car = { .item_name = "Robbed car", .price= 100000};
+                my_cars[iter_cars++] = stolen_car;
+                printf("You got lucky! While robbing you found a great car! It's been added to your property!\n");
+            }
+        }else{
+           
+            if(xp_lost > my_experience){
+                printf("You were busted! You lose all your XP.\n");
+                my_experience = 0;
+            }else{
+                printf("You were busted! You lose %d XP.\n", xp_lost);
+                my_experience -= xp_lost;
+            }
+        }
+    }else {
+        if(rand75()){
+            printf("You succesfully robbed the place! You get %d $ and %d XP.\n", money_won, xp_won);
+            my_experience += xp_won;
+            my_wallet += money_won;
+            if(rand25()){
+                struct Item stolen_car = { .item_name = "Robbed car", .price= 100000};
+                my_cars[iter_cars++] = stolen_car;
+                printf("You got lucky! While robbing you found a great car! It's been added to your property!\n");
+            }
+        }else{
+            if(xp_lost > my_experience){
+                printf("You were busted! You lose all your XP.\n");
+                my_experience = 0;
+            }else{
+                printf("You were busted! You lose %d XP.\n", xp_lost);
+                my_experience -= xp_lost;
+            }
+        }
+    }
+}
+
 
 int main(void) {
 

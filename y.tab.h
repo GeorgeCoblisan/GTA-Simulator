@@ -57,26 +57,30 @@ extern int yydebug;
     see = 263,
     account_balance = 264,
     experience = 265,
-    property = 266,
-    buy = 267,
-    car = 268,
-    house = 269,
-    go_to = 270,
-    casino = 271,
-    dice = 272,
-    bet = 273,
-    leave = 274,
-    rob = 275,
-    party = 276,
-    business = 277,
-    check = 278,
-    withdraw = 279,
-    from = 280,
-    quit = 281,
-    sell = 282,
-    invalid = 283,
-    value = 284,
-    name = 285
+    cars = 266,
+    jobs = 267,
+    businesses = 268,
+    houses = 269,
+    property = 270,
+    buy = 271,
+    car = 272,
+    house = 273,
+    go_to = 274,
+    casino = 275,
+    dice = 276,
+    bet = 277,
+    leave = 278,
+    rob = 279,
+    party = 280,
+    business = 281,
+    check = 282,
+    withdraw = 283,
+    from = 284,
+    quit = 285,
+    sell = 286,
+    invalid = 287,
+    value = 288,
+    name = 289
   };
 #endif
 /* Tokens.  */
@@ -88,35 +92,39 @@ extern int yydebug;
 #define see 263
 #define account_balance 264
 #define experience 265
-#define property 266
-#define buy 267
-#define car 268
-#define house 269
-#define go_to 270
-#define casino 271
-#define dice 272
-#define bet 273
-#define leave 274
-#define rob 275
-#define party 276
-#define business 277
-#define check 278
-#define withdraw 279
-#define from 280
-#define quit 281
-#define sell 282
-#define invalid 283
-#define value 284
-#define name 285
+#define cars 266
+#define jobs 267
+#define businesses 268
+#define houses 269
+#define property 270
+#define buy 271
+#define car 272
+#define house 273
+#define go_to 274
+#define casino 275
+#define dice 276
+#define bet 277
+#define leave 278
+#define rob 279
+#define party 280
+#define business 281
+#define check 282
+#define withdraw 283
+#define from 284
+#define quit 285
+#define sell 286
+#define invalid 287
+#define value 288
+#define name 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 53 "yacc.y"
+#line 93 "yacc.y"
  int integer; char* string; 
 
-#line 120 "y.tab.h"
+#line 128 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

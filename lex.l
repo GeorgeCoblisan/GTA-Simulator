@@ -29,6 +29,10 @@ void yyerror(char* s);
 "Withdraw"                  { return withdraw; }
 "from my"                   { return from; }
 "Sell"                      { return sell; }
+"businesses"                { return businesses; }
+"cars"                      { return cars; }
+"houses"                    { return houses; }   
+"jobs"                      { return jobs; } 
 [A-Z]+                      { yylval.string = strdup(yytext); return name; }
 [A-Z]+[ ][A-Z0-9]+          { yylval.string = strdup(yytext); return name; }
 [0-9]+                      { yylval.integer = atoi(yytext); return value; }

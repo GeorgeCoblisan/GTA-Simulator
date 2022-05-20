@@ -1,0 +1,542 @@
+State 0 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: line $end
+
+    1 line: play
+    2     | line choose_person
+    3     | line leave
+    4     | line job_topic
+    5     | line car_topic
+    6     | line house_topic
+    7     | line business_topic
+    8     | line casino_topic
+    9     | line check_topic
+   10     | line party
+   11     | line invalid
+   12     | line rob
+   13     | quit
+   14     | line quit
+   15     | %empty
+
+   16 job_topic: get jobs
+   17          | get job name
+   18          | work
+
+   19 car_topic: buy cars
+   20          | buy car name
+
+   21 house_topic: buy houses
+   22            | buy house name
+
+   23 business_topic: buy businesses
+   24               | buy business name
+   25               | check business
+   26               | withdraw from business value
+   27               | sell business
+
+   28 casino_topic: go_to casino
+   29             | dice
+   30             | bet value
+   31             | leave casino
+
+   32 check_topic: see account_balance
+   33            | see experience
+   34            | see property
+
+   35 choose_person: choose_character name
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    play (258) 1
+    choose_character (259) 35
+    get (260) 16 17
+    job (261) 17
+    work (262) 18
+    see (263) 32 33 34
+    account_balance (264) 32
+    experience (265) 33
+    cars (266) 19
+    jobs (267) 16
+    businesses (268) 23
+    houses (269) 21
+    property (270) 34
+    buy (271) 19 20 21 22 23 24
+    car (272) 20
+    house (273) 22
+    go_to (274) 28
+    casino (275) 28 31
+    dice (276) 29
+    bet (277) 30
+    leave (278) 3 31
+    rob (279) 12
+    party (280) 10
+    business (281) 24 25 26 27
+    check (282) 25
+    withdraw (283) 26
+    from (284) 26
+    quit (285) 13 14
+    sell (286) 27
+    invalid (287) 11
+    value <integer> (288) 26 30
+    name <string> (289) 17 20 22 24 35
+
+
+Nonterminals, with rules where they appear
+
+    $accept (35)
+        on left: 0
+    line (36)
+        on left: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+        on right: 0 2 3 4 5 6 7 8 9 10 11 12 14
+    job_topic (37)
+        on left: 16 17 18
+        on right: 4
+    car_topic (38)
+        on left: 19 20
+        on right: 5
+    house_topic (39)
+        on left: 21 22
+        on right: 6
+    business_topic (40)
+        on left: 23 24 25 26 27
+        on right: 7
+    casino_topic (41)
+        on left: 28 29 30 31
+        on right: 8
+    check_topic (42)
+        on left: 32 33 34
+        on right: 9
+    choose_person (43)
+        on left: 35
+        on right: 2
+
+
+State 0
+
+    0 $accept: . line $end
+
+    play  shift, and go to state 1
+    quit  shift, and go to state 2
+
+    quit      [reduce using rule 15 (line)]
+    $default  reduce using rule 15 (line)
+
+    line  go to state 3
+
+
+State 1
+
+    1 line: play .
+
+    $default  reduce using rule 1 (line)
+
+
+State 2
+
+   13 line: quit .
+
+    $default  reduce using rule 13 (line)
+
+
+State 3
+
+    0 $accept: line . $end
+    2 line: line . choose_person
+    3     | line . leave
+    4     | line . job_topic
+    5     | line . car_topic
+    6     | line . house_topic
+    7     | line . business_topic
+    8     | line . casino_topic
+    9     | line . check_topic
+   10     | line . party
+   11     | line . invalid
+   12     | line . rob
+   14     | line . quit
+
+    $end              shift, and go to state 4
+    choose_character  shift, and go to state 5
+    get               shift, and go to state 6
+    work              shift, and go to state 7
+    see               shift, and go to state 8
+    buy               shift, and go to state 9
+    go_to             shift, and go to state 10
+    dice              shift, and go to state 11
+    bet               shift, and go to state 12
+    leave             shift, and go to state 13
+    rob               shift, and go to state 14
+    party             shift, and go to state 15
+    check             shift, and go to state 16
+    withdraw          shift, and go to state 17
+    quit              shift, and go to state 18
+    sell              shift, and go to state 19
+    invalid           shift, and go to state 20
+
+    job_topic       go to state 21
+    car_topic       go to state 22
+    house_topic     go to state 23
+    business_topic  go to state 24
+    casino_topic    go to state 25
+    check_topic     go to state 26
+    choose_person   go to state 27
+
+
+State 4
+
+    0 $accept: line $end .
+
+    $default  accept
+
+
+State 5
+
+   35 choose_person: choose_character . name
+
+    name  shift, and go to state 28
+
+
+State 6
+
+   16 job_topic: get . jobs
+   17          | get . job name
+
+    job   shift, and go to state 29
+    jobs  shift, and go to state 30
+
+
+State 7
+
+   18 job_topic: work .
+
+    $default  reduce using rule 18 (job_topic)
+
+
+State 8
+
+   32 check_topic: see . account_balance
+   33            | see . experience
+   34            | see . property
+
+    account_balance  shift, and go to state 31
+    experience       shift, and go to state 32
+    property         shift, and go to state 33
+
+
+State 9
+
+   19 car_topic: buy . cars
+   20          | buy . car name
+   21 house_topic: buy . houses
+   22            | buy . house name
+   23 business_topic: buy . businesses
+   24               | buy . business name
+
+    cars        shift, and go to state 34
+    businesses  shift, and go to state 35
+    houses      shift, and go to state 36
+    car         shift, and go to state 37
+    house       shift, and go to state 38
+    business    shift, and go to state 39
+
+
+State 10
+
+   28 casino_topic: go_to . casino
+
+    casino  shift, and go to state 40
+
+
+State 11
+
+   29 casino_topic: dice .
+
+    $default  reduce using rule 29 (casino_topic)
+
+
+State 12
+
+   30 casino_topic: bet . value
+
+    value  shift, and go to state 41
+
+
+State 13
+
+    3 line: line leave .
+   31 casino_topic: leave . casino
+
+    casino  shift, and go to state 42
+
+    $default  reduce using rule 3 (line)
+
+
+State 14
+
+   12 line: line rob .
+
+    $default  reduce using rule 12 (line)
+
+
+State 15
+
+   10 line: line party .
+
+    $default  reduce using rule 10 (line)
+
+
+State 16
+
+   25 business_topic: check . business
+
+    business  shift, and go to state 43
+
+
+State 17
+
+   26 business_topic: withdraw . from business value
+
+    from  shift, and go to state 44
+
+
+State 18
+
+   14 line: line quit .
+
+    $default  reduce using rule 14 (line)
+
+
+State 19
+
+   27 business_topic: sell . business
+
+    business  shift, and go to state 45
+
+
+State 20
+
+   11 line: line invalid .
+
+    $default  reduce using rule 11 (line)
+
+
+State 21
+
+    4 line: line job_topic .
+
+    $default  reduce using rule 4 (line)
+
+
+State 22
+
+    5 line: line car_topic .
+
+    $default  reduce using rule 5 (line)
+
+
+State 23
+
+    6 line: line house_topic .
+
+    $default  reduce using rule 6 (line)
+
+
+State 24
+
+    7 line: line business_topic .
+
+    $default  reduce using rule 7 (line)
+
+
+State 25
+
+    8 line: line casino_topic .
+
+    $default  reduce using rule 8 (line)
+
+
+State 26
+
+    9 line: line check_topic .
+
+    $default  reduce using rule 9 (line)
+
+
+State 27
+
+    2 line: line choose_person .
+
+    $default  reduce using rule 2 (line)
+
+
+State 28
+
+   35 choose_person: choose_character name .
+
+    $default  reduce using rule 35 (choose_person)
+
+
+State 29
+
+   17 job_topic: get job . name
+
+    name  shift, and go to state 46
+
+
+State 30
+
+   16 job_topic: get jobs .
+
+    $default  reduce using rule 16 (job_topic)
+
+
+State 31
+
+   32 check_topic: see account_balance .
+
+    $default  reduce using rule 32 (check_topic)
+
+
+State 32
+
+   33 check_topic: see experience .
+
+    $default  reduce using rule 33 (check_topic)
+
+
+State 33
+
+   34 check_topic: see property .
+
+    $default  reduce using rule 34 (check_topic)
+
+
+State 34
+
+   19 car_topic: buy cars .
+
+    $default  reduce using rule 19 (car_topic)
+
+
+State 35
+
+   23 business_topic: buy businesses .
+
+    $default  reduce using rule 23 (business_topic)
+
+
+State 36
+
+   21 house_topic: buy houses .
+
+    $default  reduce using rule 21 (house_topic)
+
+
+State 37
+
+   20 car_topic: buy car . name
+
+    name  shift, and go to state 47
+
+
+State 38
+
+   22 house_topic: buy house . name
+
+    name  shift, and go to state 48
+
+
+State 39
+
+   24 business_topic: buy business . name
+
+    name  shift, and go to state 49
+
+
+State 40
+
+   28 casino_topic: go_to casino .
+
+    $default  reduce using rule 28 (casino_topic)
+
+
+State 41
+
+   30 casino_topic: bet value .
+
+    $default  reduce using rule 30 (casino_topic)
+
+
+State 42
+
+   31 casino_topic: leave casino .
+
+    $default  reduce using rule 31 (casino_topic)
+
+
+State 43
+
+   25 business_topic: check business .
+
+    $default  reduce using rule 25 (business_topic)
+
+
+State 44
+
+   26 business_topic: withdraw from . business value
+
+    business  shift, and go to state 50
+
+
+State 45
+
+   27 business_topic: sell business .
+
+    $default  reduce using rule 27 (business_topic)
+
+
+State 46
+
+   17 job_topic: get job name .
+
+    $default  reduce using rule 17 (job_topic)
+
+
+State 47
+
+   20 car_topic: buy car name .
+
+    $default  reduce using rule 20 (car_topic)
+
+
+State 48
+
+   22 house_topic: buy house name .
+
+    $default  reduce using rule 22 (house_topic)
+
+
+State 49
+
+   24 business_topic: buy business name .
+
+    $default  reduce using rule 24 (business_topic)
+
+
+State 50
+
+   26 business_topic: withdraw from business . value
+
+    value  shift, and go to state 51
+
+
+State 51
+
+   26 business_topic: withdraw from business value .
+
+    $default  reduce using rule 26 (business_topic)
